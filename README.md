@@ -1,11 +1,17 @@
-# smCounter
-smCounter is a variant caller that integrates molecular barcode information into the inherent statistical model. smCounter has demonstrated very good accuracy in detecting SNVs and short INDELs at very low allele fractions. 
+This repository contains scripts and data files supporting the manuscript "Detecting very low allele fraction variants using targeted DNA sequencing with molecular barcodes". 
 
-# Requirements
-* Python (developed and tested with v2.7.3, with the following modules installed: math, pysam, scipy, random, multiprocessing) 
-* samtools v0.1.19
-* bedtools 
+# File description 
+  * smCounter.v6.7.1.py -- Python script for smCounter, a barcode aware somatic variant caller that integrates molecular barcode information into the variant calling algorithm. The script was developed and tested under Python v2.7.3. Python modules required: pysam, math, scipy, random, multiprocessing. Samtools v0.1.19 and Bedtools are also required. 
 
-# Input/output files
-* Input: BAM file with index, BED file (sorted and merged, with 'chr')
-* Output: Variant call set in VCF format, details of each target locus in text file, log file.  
+  * runLog.py -- A custom python script for writing log file, used together with smCounter.v6.7.1.py. 
+
+  * ds.mt.py -- Python script for downsampling barcode over the entire target region. 
+
+  * ds.reads.withinMT.py -- Python script for downsampling reads within barcodes. 
+
+  * ds.allele.fraction.py -- Python script for reducing the variant allele fraction at given variant loci. 
+
+  * primers.NA12878-194-genes-63-indels.10867.coding.bed -- Bed file for the target region of N0030 panel
+
+  * smCounter.command.sh -- An example command for running smCounter. The parameters in the example are the default settings. 
+
