@@ -1,4 +1,4 @@
-This repository contains scripts and data files supporting the manuscript "Detecting very low allele fraction variants using targeted DNA sequencing with molecular barcodes". 
+This repository contains scripts and data files supporting the article "Detecting very low allele fraction variants using targeted DNA sequencing and a novel molecular barcode-aware variant caller", BMC Genomics, 2017 18:5. https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3425-4
 
 # File description 
   * smCounter.py -- Python script for smCounter, a barcode aware somatic variant caller that integrates molecular barcode information into the variant calling algorithm. The script was developed and tested under Python v2.7.3. Python modules required: pysam, math, scipy, random, multiprocessing. Samtools v0.1.19 and Bedtools are also required. 
