@@ -1,0 +1,33 @@
+##fileformat=VCFv4.2
+##reference=GRCh37
+##INFO=<ID=TYPE,Number=1,Type=String,Description="Variant type: SNP or INDEL">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth">
+##INFO=<ID=MT,Number=1,Type=Integer,Description="Total MT depth">
+##INFO=<ID=UMT,Number=1,Type=Integer,Description="Filtered MT depth">
+##INFO=<ID=PI,Number=1,Type=Float,Description="Variant prediction index">
+##INFO=<ID=THR,Number=1,Type=Integer,Description="Variant prediction index minimum threshold">
+##INFO=<ID=VDP,Number=1,Type=Integer,Description="Variant read depth">
+##INFO=<ID=VMT,Number=1,Type=Integer,Description="Variant MT depth">
+##INFO=<ID=VMF,Number=1,Type=Float,Description="Variant MT fraction">
+##INFO=<ID=VSM,Number=1,Type=Integer,Description="Variant strong MT depth">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FILTER=<ID=RepT,Description="Variant in simple tandem repeat region, as defined by Tandem Repeats Finder">
+##FILTER=<ID=RepS,Description="Variant in simple repeat region, as defined by RepeatMasker">
+##FILTER=<ID=LowC,Description="Variant in low complexity region, as defined by RepeatMasker">
+##FILTER=<ID=SL,Description="Variant in micro-satelite region, as defined by RepeatMasker">
+##FILTER=<ID=HP,Description="Inside or flanked by homopolymer region">
+##FILTER=<ID=LM,Description="Low coverage (fewer than 5 MTs)">
+##FILTER=<ID=LSM,Description="Fewer than 2 strong MTs">
+##FILTER=<ID=SB,Description="Strand bias">
+##FILTER=<ID=LowQ,Description="Low base quality (>= 40% reads with quality < Q20 at the locus)">
+##FILTER=<ID=MM,Description="Too many genome reference mismatches in reads (default threshold is 6.0 per 100 bases)">
+##FILTER=<ID=DP,Description="Too many discordant read pairs">
+##FILTER=<ID=R1CP,Description="Variants are clustered at the end of R1 reads">
+##FILTER=<ID=R2CP,Description="Variants are clustered at the end of R2 reads">
+##FILTER=<ID=PrimerCP,Description="Variants are clustered immediately after the primer, possible enzyme initiation error">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	example
+chr17	41244000	.	T	C	168	PASS	TYPE=SNP;DP=63095;MT=4560;UMT=4481;PI=168.18;THR=58;VDP=643;VMT=45;VMF=0.01;VSM=27	GT	0/1
+chr17	41244435	.	T	C	101	PASS	TYPE=SNP;DP=50108;MT=4009;UMT=3910;PI=101.19;THR=58;VDP=430;VMT=35;VMF=0.009;VSM=14	GT	0/1
+chr17	41244936	.	G	A	157	PASS	TYPE=SNP;DP=69152;MT=4199;UMT=4118;PI=157.54;THR=58;VDP=655;VMT=37;VMF=0.009;VSM=24	GT	0/1
+chr17	41245237	.	A	G	259	PASS	TYPE=SNP;DP=85162;MT=7225;UMT=7146;PI=259.1;THR=58;VDP=845;VMT=76;VMF=0.0106;VSM=42	GT	0/1
+chr17	41245466	.	G	A	81	PASS	TYPE=SNP;DP=46187;MT=3248;UMT=3196;PI=81.53;THR=58;VDP=325;VMT=28;VMF=0.0088;VSM=13	GT	0/1
