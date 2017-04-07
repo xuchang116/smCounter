@@ -807,8 +807,13 @@ def main(args):
          '##FILTER=<ID=LM,Description="Low coverage (fewer than 5 MTs)">\n' + \
          '##FILTER=<ID=LSM,Description="Fewer than 2 strong MTs">\n' + \
          '##FILTER=<ID=SB,Description="Strand bias">\n' + \
+<<<<<<< HEAD
          '##FILTER=<ID=LowQ,Description="Low base quality (>= 40% reads with quality < Q20 at the locus)">\n' + \
          '##FILTER=<ID=MM,Description="Too many genome reference mismatches in reads (default threshold is 6.0 per 100 bases)">\n' + \
+=======
+         '##FILTER=<ID=LowQ,Description="Low base quality (mean < 22)">\n' + \
+         '##FILTER=<ID=MM,Description="Too many genome reference mismatches in reads (default threshold is 6.5 per 100 bases)">\n' + \
+>>>>>>> 8eb8cf01029b9b8fbecb5d3326628c747fc1ccad
          '##FILTER=<ID=DP,Description="Too many discordant read pairs">\n' + \
          '##FILTER=<ID=R1CP,Description="Variants are clustered at the end of R1 reads">\n' + \
          '##FILTER=<ID=R2CP,Description="Variants are clustered at the end of R2 reads">\n' + \
