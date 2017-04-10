@@ -1,5 +1,5 @@
 # smCounter: barcode-aware variant caller 
-# Chang Xu. 23May2016; online version of 10APR2017
+# Chang Xu. 23May2016
 import os
 import datetime
 import subprocess
@@ -93,7 +93,7 @@ def calProb(oneBC, mtDrop):
          sumP += tmpOut[key]
 
       for key in prodP.iterkeys():
-         outDict[key] = 0.0 if sumP <= 0 else tmpOut[key] / sumP
+         outDict[key] = tmpOut[key] / sumP
 
    return outDict
 
@@ -120,31 +120,34 @@ def convertToVcf(origRef,origAlt):
 # check if a locus is within or flanked by homopolymer region and/or low complexity region
 #-------------------------------------------------------------------------------------
 def isHPorLowComp(chrom, pos, length, refb, altb, refGenome):
-   # get reference bases for interval [pos-length, pos+length]
+   # get reference base
    refs = pysam.FastaFile(refGenome)
-   chromLength = refs.get_reference_length(chrom)
-   pos0 = int(pos) - 1
-   Lseq     = refs.fetch(reference=chrom, start=max(0,pos0-length)   , end=pos0).upper()
-   Rseq_ref = refs.fetch(reference=chrom, start=      pos0+len(refb) , end=min(pos0+len(refb)+length,chromLength)).upper()
-   Rseq_alt = refs.fetch(reference=chrom, start=      pos0+len(altb) , end=min(pos0+len(altb)+length,chromLength)).upper()
+   # ref sequence of [pos-length, pos+length] interval
+   Lseq = refs.fetch(reference=chrom, start=int(pos)-1-length, end=int(pos)-1).upper()
+   Rseq_ref = refs.fetch(reference=chrom, start=int(pos)-1+len(refb), end=int(pos)-1+len(refb)+length).upper()
    refSeq = Lseq + refb + Rseq_ref
+   # alt sequence
+   Rseq_alt = refs.fetch(reference=chrom, start=int(pos)-1+len(altb), end=int(pos)-1+len(altb)+length).upper()
    altSeq = Lseq + altb + Rseq_alt
    # check homopolymer
-   homoA = refSeq.find('A'*length) >= 0 or altSeq.find('A'*length) >= 0
-   homoT = refSeq.find('T'*length) >= 0 or altSeq.find('T'*length) >= 0
-   homoG = refSeq.find('G'*length) >= 0 or altSeq.find('G'*length) >= 0
-   homoC = refSeq.find('C'*length) >= 0 or altSeq.find('C'*length) >= 0 
-   homop = homoA or homoT or homoG or homoC
+   homoA = True if refSeq.find('A'*length) >= 0 or altSeq.find('A'*length) >= 0 else False
+   homoT = True if refSeq.find('T'*length) >= 0 or altSeq.find('T'*length) >= 0 else False
+   homoG = True if refSeq.find('G'*length) >= 0 or altSeq.find('G'*length) >= 0 else False
+   homoC = True if refSeq.find('C'*length) >= 0 or altSeq.find('C'*length) >= 0 else False
+   homop = True if homoA or homoT or homoG or homoC else False
 
    # check low complexity -- window length is 2 * homopolymer region. If any 2 nucleotide >= 99% 
-   len2 = 2 * length
-   LseqLC     = refs.fetch(reference=chrom, start=max(0,pos0-len2)    , end=pos0).upper()
-   Rseq_refLC = refs.fetch(reference=chrom, start=      pos0+len(refb), end=min(pos0+len(refb)+len2,chromLength)).upper()  # ref seq
-   Rseq_altLC = refs.fetch(reference=chrom, start=      pos0+len(altb), end=min(pos0+len(altb)+len2,chromLength)).upper()  # alt seq
+   len2 = int(2 * length)
+   LseqLC = refs.fetch(reference=chrom, start=int(pos)-1-len2, end=int(pos)-1).upper()
+   # ref seq
+   Rseq_refLC = refs.fetch(reference=chrom, start=int(pos)-1+len(refb), end=int(pos)-1+len(refb)+len2).upper()
    refSeqLC = LseqLC + refb + Rseq_refLC
+   # alt seq
+   Rseq_altLC = refs.fetch(reference=chrom, start=int(pos)-1+len(altb), end=int(pos)-1+len(altb)+len2).upper()
    altSeqLC = LseqLC + altb + Rseq_altLC
+
    lowcomp = False
-   
+
    # Ref seq
    totalLen = len(refSeqLC)
    for i in range(totalLen-len2):
@@ -555,8 +558,7 @@ def vc(bamFile, chrom, pos, minBQ, minMQ, mtDepth, rpb, hpLen, mismatchThr, mtDr
    if maxBase != origRef and secondMaxBase != origRef and mfAlt >= 0.45 and mfAlt2 >= 0.45: # conditions to be considered bi-allelic
    
       # convert from internal smCounter format to format needed for output
-      origAlt2 = secondMaxBase
-      (ref2, alt2, vtype2) = convertToVcf(origRef,origAlt2)
+      (ref2, alt2, vtype2) = convertToVcf(origRef,secondMaxBase)
 
       # apply filters to 2nd variant if PI2 >= 5 (at least 2 MTs), and locus not in a deletion
       fltr2 = ';'
@@ -677,14 +679,12 @@ def main(args):
       if not line.startswith("track "):
          (chrom, regionStart, regionEnd) = line.strip().split('\t')[0:3]
          for pos in range(int(regionStart),int(regionEnd)):
-            locList.append((chrom, str(pos+1)))
+            locList.append((chrom, str(pos)))
 
    # call variants in parallel
    pool = multiprocessing.Pool(processes=args.nCPU)
    results = [pool.apply_async(vc_wrapper, args=(args.bamFile, x[0], x[1], args.minBQ, args.minMQ, args.mtDepth, args.rpb, args.hpLen, args.mismatchThr, args.mtDrop, args.maxMT, args.primerDist, args.refGenome)) for x in locList]
    output = [p.get() for p in results]
-   pool.close()
-   pool.join()
    
    # check for exceptions thrown by vc()
    for idx in range(len(output)):
@@ -741,7 +741,7 @@ def main(args):
 
    # set up header columns (Note: "headerAll" must parallel the output of the vc() function.)
    headerAll      = ('CHROM', 'POS', 'REF', 'ALT', 'TYPE', 'DP', 'FR' , 'MT', 'UFR', 'UMT', 'PI',        'VDP', 'VAF', 'VMT', 'VMF', 'VSM', 'DP_A', 'DP_T', 'DP_G', 'DP_C', 'AF_A', 'AF_T', 'AF_G', 'AF_C', 'MT_3RPM', 'MT_5RPM', 'MT_7RPM', 'MT_10RPM',  'UMT_A', 'UMT_T', 'UMT_G', 'UMT_C', 'UMF_A', 'UMF_T', 'UMF_G', 'UMF_C', 'VSM_A', 'VSM_T', 'VSM_G', 'VSM_C', 'PI_A', 'PI_T', 'PI_G', 'PI_C', 'FILTER')
-   headerVariants = ('CHROM', 'POS', 'REF', 'ALT', 'TYPE', 'DP',        'MT',        'UMT', 'PI', 'THR',               'VMT', 'VMF', 'VSM', 'FILTER')
+   headerVariants = ('CHROM', 'POS', 'REF', 'ALT', 'TYPE', 'DP',        'MT',        'UMT', 'PI', 'THR', 'VDP',        'VMT', 'VMF', 'VSM', 'FILTER')
 
    # set up hash of variable fields
    headerAllIndex = {}
@@ -771,13 +771,13 @@ def main(args):
          # check tandem repeat from TRF if MT fraction < 40%
          if altMtFracTr < 40:
             for (locL, locR, repType) in trfRegions[chromTr]:
-               if locL < posTr <= locR:
+               if locL <= posTr < locR:
                   lineList[-1] += repType
                   break
 
          # check simple repeat, lc, sl from RepeatMasker
          for (locL, locR, repType) in rmRegions[chromTr]:
-            if locL < posTr <= locR:
+            if locL <= posTr < locR:
                lineList[-1] += repType
                break
 
@@ -794,12 +794,11 @@ def main(args):
          '##INFO=<ID=UMT,Number=1,Type=Integer,Description="Filtered MT depth">\n' + \
          '##INFO=<ID=PI,Number=1,Type=Float,Description="Variant prediction index">\n' + \
          '##INFO=<ID=THR,Number=1,Type=Integer,Description="Variant prediction index minimum threshold">\n' + \
+         '##INFO=<ID=VDP,Number=1,Type=Integer,Description="Variant read depth">\n' + \
          '##INFO=<ID=VMT,Number=1,Type=Integer,Description="Variant MT depth">\n' + \
          '##INFO=<ID=VMF,Number=1,Type=Float,Description="Variant MT fraction">\n' + \
          '##INFO=<ID=VSM,Number=1,Type=Integer,Description="Variant strong MT depth">\n' + \
          '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n' + \
-         '##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Filtered allelic MT depths for the ref and alt alleles">\n' + \
-         '##FORMAT=<ID=VF,Number=1,Type=Float,Description="Variant MT fraction, same as VMF">\n' + \
          '##FILTER=<ID=RepT,Description="Variant in simple tandem repeat region, as defined by Tandem Repeats Finder">\n' + \
          '##FILTER=<ID=RepS,Description="Variant in simple repeat region, as defined by RepeatMasker">\n' + \
          '##FILTER=<ID=LowC,Description="Variant in low complexity region, as defined by RepeatMasker">\n' + \
@@ -808,13 +807,21 @@ def main(args):
          '##FILTER=<ID=LM,Description="Low coverage (fewer than 5 MTs)">\n' + \
          '##FILTER=<ID=LSM,Description="Fewer than 2 strong MTs">\n' + \
          '##FILTER=<ID=SB,Description="Strand bias">\n' + \
+<<<<<<< HEAD
+         '##FILTER=<ID=LowQ,Description="Low base quality (>= 40% reads with quality < Q20 at the locus)">\n' + \
+         '##FILTER=<ID=MM,Description="Too many genome reference mismatches in reads (default threshold is 6.0 per 100 bases)">\n' + \
+=======
          '##FILTER=<ID=LowQ,Description="Low base quality (mean < 22)">\n' + \
          '##FILTER=<ID=MM,Description="Too many genome reference mismatches in reads (default threshold is 6.5 per 100 bases)">\n' + \
+>>>>>>> 8eb8cf01029b9b8fbecb5d3326628c747fc1ccad
          '##FILTER=<ID=DP,Description="Too many discordant read pairs">\n' + \
          '##FILTER=<ID=R1CP,Description="Variants are clustered at the end of R1 reads">\n' + \
          '##FILTER=<ID=R2CP,Description="Variants are clustered at the end of R2 reads">\n' + \
          '##FILTER=<ID=PrimerCP,Description="Variants are clustered immediately after the primer, possible enzyme initiation error">\n' + \
          '\t'.join(('#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', args.outPrefix)) + '\n'
+         #'##FORMAT=<ID=UMT,Number=1,Type=Integer,Description="Filtered MT depth">\n' + \
+         #'##FORMAT=<ID=VMT,Number=1,Type=Integer,Description="Variant allele MT depth">\n' + \
+         #'##FORMAT=<ID=VMF,Number=1,Type=Float,Description="Variant allele MT fraction">\n' + \
 
    # set cutoff value for about 20 FP/Mb
    threshold = int(math.ceil(14.0 + 0.012 * args.mtDepth)) if args.threshold == 0 else args.threshold
@@ -858,11 +865,12 @@ def main(args):
          MT    = fields[headerAllIndex['MT']]
          UMT   = fields[headerAllIndex['UMT']]
          VMT   = fields[headerAllIndex['VMT']]
-         VMF   = fields[headerAllIndex['VMF']]
+         VDP   = fields[headerAllIndex['VDP']]
          VSM   = fields[headerAllIndex['VSM']]
+         VMF   = fields[headerAllIndex['VMF']]
          FILTER= fields[headerAllIndex['FILTER']]
          THR   = str(threshold)
-         INFO = ';'.join(('TYPE='+TYPE, 'DP='+DP, 'MT='+MT, 'UMT='+UMT, 'PI='+PI, 'THR='+THR, 'VMT='+VMT, 'VMF='+VMF, 'VSM='+VSM))
+         INFO = ';'.join(('TYPE='+TYPE, 'DP='+DP, 'MT='+MT, 'UMT='+UMT, 'PI='+PI, 'THR='+THR, 'VDP='+VDP, 'VMT='+VMT, 'VMF='+VMF, 'VSM='+VSM))
          
          # hack attempt to satisfy downstream software - not correct for germline heterozygous, male X, etc, etc, etc 
          alts = ALT.split(",")
@@ -876,17 +884,12 @@ def main(args):
             genotype = '1/1'
          else:
             genotype = '0/1'
-         REFMT = str(int(UMT) - int(VMT))
-         AD = REFMT + "," + VMT
-         if len(alts) == 2:
-            AD = AD + ",1"  # horrific hack for the 2nd alt
 
          # output
-         FORMAT = 'GT:AD:VF'
-         SAMPLE = ":".join((genotype,AD,VMF))
          ID     = '.'
-         vcfLine   = '\t'.join((CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT, SAMPLE)) + '\n'
-         shortLine = '\t'.join((CHROM, POS,     REF, ALT, TYPE, DP, MT, UMT, PI, THR, VMT, VMF, VSM, FILTER)) + '\n' 
+         FORMAT = 'GT'
+         vcfLine   = '\t'.join((CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT, genotype)) + '\n'
+         shortLine = '\t'.join((CHROM, POS,     REF, ALT, TYPE, DP, MT, UMT, PI, THR, VDP, VMT, VMF, VSM, FILTER)) + '\n' 
          outVcf.write(vcfLine)
          outVariants.write(shortLine)
          

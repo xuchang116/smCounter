@@ -1,0 +1,25 @@
+2017-04-10 10:01:02.017 smCounter started at 2017-04-10 10:01:02.017154
+2017-04-10 10:01:02.017 ('hpLen', 8)
+2017-04-10 10:01:02.017 ('bedtoolsPath', '/qgen/bin/bedtools-2.25.0/bin/')
+2017-04-10 10:01:02.017 ('paramFile', None)
+2017-04-10 10:01:02.017 ('bedTarget', 'example.bed')
+2017-04-10 10:01:02.017 ('mismatchThr', 6.0)
+2017-04-10 10:01:02.017 ('primerDist', 2)
+2017-04-10 10:01:02.017 ('bamFile', 'example.bam')
+2017-04-10 10:01:02.017 ('refGenome', '/qgen/home/rvijaya/downloads/alt_hap_masked_ref/ucsc.hg19.fasta')
+2017-04-10 10:01:02.017 ('nCPU', 10)
+2017-04-10 10:01:02.017 ('maxMT', 0)
+2017-04-10 10:01:02.017 ('rpb', 8.6)
+2017-04-10 10:01:02.017 ('bedTandemRepeats', '../simpleRepeat.bed')
+2017-04-10 10:01:02.017 ('bedRepeatMaskerSubset', '../SR_LC_SL.nochr.bed')
+2017-04-10 10:01:02.017 ('mtDrop', 1)
+2017-04-10 10:01:02.018 ('minMQ', 30)
+2017-04-10 10:01:02.018 ('threshold', 0)
+2017-04-10 10:01:02.018 ('outPrefix', 'example')
+2017-04-10 10:01:02.018 ('logFile', 'example')
+2017-04-10 10:01:02.018 ('mtDepth', 3612)
+2017-04-10 10:01:02.018 ('minBQ', 20)
+2017-04-10 10:01:02.018 ('runPath', './')
+2017-04-10 10:09:04.075 begin variant filtering and output
+2017-04-10 10:09:09.333 smCounter completed running at 2017-04-10 10:09:09.333443
+2017-04-10 10:09:09.333 smCounter total time: 0:08:07.316289
