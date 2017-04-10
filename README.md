@@ -9,6 +9,6 @@ This repository contains scripts and data files supporting smCounter, a versatil
   * primers.NA12878-194-genes-63-indels.10867.coding.bed -- Bed file for the target region of N0030 panel
   * SR_LC_SL.nochr.bed -- simple repeat, low complexity, satellite region
   * simpleRepeat.bed -- tandem repeat region
-  * example -- The folder contains an example of running smCounter on a BAM file with UMIs. The BAM file is a subset of N0030 data (see BMC Genomics paper) that covers part of BRCA1 gene
+  * example -- The folder contains an example of running smCounter on Illumina paired end reads with UMIs (library prepared using QIAseq targeted DNA panels). The BAM file is a subset of N0030 data (see BMC Genomics paper) that covers part of BRCA1 gene
 
 
