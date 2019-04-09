@@ -1,4 +1,4 @@
-NOTE: the upgraded version, smCounter2, is available at https://github.com/qiaseq/qiaseq-dna. The preprint has been posted on bioRxiv https://www.biorxiv.org/content/early/2018/03/14/281659.
+NOTE: the upgraded version, smCounter2, is available at https://github.com/qiaseq/qiaseq-dna. The paper is here [smCounter2: an accurate low-frequency variant caller for targeted sequencing data with unique molecular identifiers, Bioinformatics, 06 September 2018](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty790/5091498)
 
 This repository contains scripts and data files supporting smCounter, a versatile UMI-aware variant caller that detects both somatic and germline SNVs and indels with high sensitivity and specificity. An example of running smCounter is included. The algorithm and validation results were published in "Detecting very low allele fraction variants using targeted DNA sequencing and a novel molecular barcode-aware variant caller", BMC Genomics, 2017 18:5. 
 
